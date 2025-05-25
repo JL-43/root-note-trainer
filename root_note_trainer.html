@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Note Trainer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: background 0.5s ease;
+        }
+
+        /* Theme Variations */
+        body.theme-ocean {
+            background: linear-gradient(135deg, #667db6 0%, #0082c8, #667db6 100%);
+        }
+
+        body.theme-sunset {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c, #4facfe 100%);
+        }
+
+        body.theme-forest {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        body.theme-night {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e, #2c3e50 100%);
+        }
+
+        body.theme-cherry {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f, #ffecd2 100%);
+        }
+
+        body.theme-cherry {
+            color: #333;
+        }
+
+        body.theme-electric {
+            background: linear-gradient(135deg, #ff00cc 0%, #333399, #ff00cc 100%);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        .instrument-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .octave-selection {
+            margin: 15px 0;
+        }
+
+        .octave-selection label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .octave-selection select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .octave-selection select option {
+            background: #333;
+            color: white;
+        }
+
+        .theme-selection {
+            margin: 15px 0;
+        }
+
+        .theme-selection label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .theme-selection select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .theme-selection select option {
+            background: #333;
+            color: white;
+        }
+
+        /* Cherry theme adjustments */
+        body.theme-cherry .container,
+        body.theme-cherry .stats,
+        body.theme-cherry .frequency-info,
+        body.theme-cherry .reference-section {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        body.theme-cherry .toggle-btn,
+        body.theme-cherry .choice,
+        body.theme-cherry .reset-button {
+            border-color: rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        body.theme-cherry .toggle-btn.active {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border-color: rgba(0, 0, 0, 0.6) !important;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+
+        body.theme-cherry .octave-selection select,
+        body.theme-cherry .theme-selection select {
+            color: #333;
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .choices {
+                grid-template-columns: 1fr;
+            }
+            
+            .reset-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .play-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .play-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .play-button:active {
+            transform: translateY(0);
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: 500;
+            color: inherit;
+        }
+
+        .choice:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .choice.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+
+        .choice.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: #f44336;
+        }
+
+        .choice.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .next-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .next-button:hover {
+            background: #1976D2;
+        }
+
+        .reset-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reset-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .feedback {
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 500;
+            min-height: 25px;
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+        }
+
+        .feedback.incorrect {
+            color: #f44336;
+        }
+
+        .frequency-info {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            min-height: 20px;
+        }
+
+        .frequency-display {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #E8F5E8;
+        }
+
+        .reference-section {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .reference-section summary {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+
+        .reference-section summary:hover {
+            color: #E8F5E8;
+        }
+
+        .reference-content {
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .note-table {
+            margin-top: 15px;
+        }
+
+        .note-table h4 {
+            margin-bottom: 10px;
+            color: #E8F5E8;
+        }
+
+        .freq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .freq-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .note-explanation {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .choices {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Root Note Trainer</h1>
+        
+        <div class="controls">
+            <div class="instrument-toggle">
+                <button class="toggle-btn active" id="piano-btn">🎹 Piano</button>
+                <button class="toggle-btn" id="guitar-btn">🎸 Guitar</button>
+            </div>
+            
+            <div class="octave-selection">
+                <label for="octave-range">Octave Range:</label>
+                <select id="octave-range">
+                    <option value="3-5">Octaves 3-5 (Default)</option>
+                    <option value="3-3">Octave 3 only</option>
+                    <option value="4-4">Octave 4 only (Middle)</option>
+                    <option value="5-5">Octave 5 only</option>
+                    <option value="3-4">Octaves 3-4</option>
+                    <option value="4-5">Octaves 4-5</option>
+                    <option value="2-6">Octaves 2-6 (Wide)</option>
+                </select>
+            </div>
+            
+            <button class="play-button" id="play-btn">▶️ Play Note</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" id="score">0</span>
+                <span class="stat-label">Score</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="streak">0</span>
+                <span class="stat-label">Streak</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="accuracy">100%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+        </div>
+
+        <div class="choices" id="choices"></div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="frequency-info" id="frequency-info" style="display: none;">
+            <div class="frequency-display">
+                <span id="frequency-text"></span>
+            </div>
+        </div>
+        
+        <button class="next-button" id="next-btn" style="display: none;">Next Question</button>
+        
+        <div class="reset-section">
+            <button class="reset-button" id="reset-btn">🔄 Start Over</button>
+            <div class="theme-selection">
+                <label for="theme-select">🎨</label>
+                <select id="theme-select">
+                    <option value="purple">🔮 Purple Dream</option>
+                    <option value="ocean">🌊 Ocean Blue</option>
+                    <option value="sunset">🌅 Sunset Orange</option>
+                    <option value="forest">🌲 Forest Green</option>
+                    <option value="night">🌙 Midnight</option>
+                    <option value="cherry">🌸 Cherry Blossom</option>
+                    <option value="electric">⚡ Electric Neon</option>
+                </select>
+            </div>
+        </div>
+        
+        <details class="reference-section">
+            <summary>🎵 Frequency Reference & Verification</summary>
+            <div class="reference-content">
+                <p><strong>Current note:</strong> <span id="current-note-ref">Play a note to see details</span></p>
+                <p><strong>Expected frequency:</strong> <span id="expected-freq">-</span></p>
+                <p><strong>Reference:</strong> A4 = 440.00 Hz (standard tuning)</p>
+                
+                <div class="note-table">
+                    <h4>Standard Frequencies (4th octave):</h4>
+                    <div class="freq-grid">
+                        <div class="freq-item"><strong>C4:</strong> 261.63 Hz</div>
+                        <div class="freq-item"><strong>C#4:</strong> 277.18 Hz</div>
+                        <div class="freq-item"><strong>D4:</strong> 293.66 Hz</div>
+                        <div class="freq-item"><strong>D#4:</strong> 311.13 Hz</div>
+                        <div class="freq-item"><strong>E4:</strong> 329.63 Hz</div>
+                        <div class="freq-item"><strong>F4:</strong> 349.23 Hz</div>
+                        <div class="freq-item"><strong>F#4:</strong> 369.99 Hz</div>
+                        <div class="freq-item"><strong>G4:</strong> 392.00 Hz</div>
+                        <div class="freq-item"><strong>G#4:</strong> 415.30 Hz</div>
+                        <div class="freq-item"><strong>A4:</strong> 440.00 Hz</div>
+                        <div class="freq-item"><strong>A#4:</strong> 466.16 Hz</div>
+                        <div class="freq-item"><strong>B4:</strong> 493.88 Hz</div>
+                    </div>
+                    <p class="note-explanation">
+                        <strong>Formula:</strong> Each octave doubles/halves the frequency.<br>
+                        <strong>Example:</strong> C5 = C4 × 2 = 523.26 Hz, C3 = C4 ÷ 2 = 130.82 Hz
+                    </p>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <script>
+        class RootNoteTrainer {
+            constructor() {
+                this.audioContext = null;
+                this.currentNote = null;
+                this.currentOctave = null;
+                this.instrument = 'piano';
+                this.octaveRange = [3, 5]; // Default range
+                this.currentTheme = 'purple';
+                this.score = 0;
+                this.streak = 0;
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+                
+                this.notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                this.noteFrequencies = {
+                    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+                    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+                    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+                };
+                
+                this.initializeAudio();
+                this.setupEventListeners();
+                this.generateQuestion();
+            }
+
+            async initializeAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (error) {
+                    console.error('Web Audio API not supported:', error);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('piano-btn').addEventListener('click', () => this.setInstrument('piano'));
+                document.getElementById('guitar-btn').addEventListener('click', () => this.setInstrument('guitar'));
+                document.getElementById('play-btn').addEventListener('click', () => this.playCurrentNote());
+                document.getElementById('next-btn').addEventListener('click', () => this.generateQuestion());
+                document.getElementById('octave-range').addEventListener('change', (e) => this.setOctaveRange(e.target.value));
+                document.getElementById('theme-select').addEventListener('change', (e) => this.setTheme(e.target.value));
+                document.getElementById('reset-btn').addEventListener('click', () => this.resetStats());
+            }
+
+            setInstrument(instrument) {
+                this.instrument = instrument;
+                document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`${instrument}-btn`).classList.add('active');
+            }
+
+            setOctaveRange(rangeValue) {
+                const [min, max] = rangeValue.split('-').map(Number);
+                this.octaveRange = [min, max];
+                
+                // If there's a current note, regenerate it within the new octave range
+                if (this.currentNote) {
+                    this.generateQuestion();
+                }
+            }
+
+            setTheme(theme) {
+                // Remove existing theme classes
+                document.body.className = document.body.className.replace(/theme-\w+/g, '');
+                
+                // Add new theme class
+                if (theme !== 'purple') {
+                    document.body.classList.add(`theme-${theme}`);
+                }
+                
+                this.currentTheme = theme;
+            }
+
+            generateQuestion() {
+                // Reset UI
+                document.getElementById('feedback').textContent = '';
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('frequency-info').style.display = 'none';
+                
+                // Generate random note and octave
+                this.currentNote = this.notes[Math.floor(Math.random() * this.notes.length)];
+                const octaveMin = this.octaveRange[0];
+                const octaveMax = this.octaveRange[1];
+                this.currentOctave = Math.floor(Math.random() * (octaveMax - octaveMin + 1)) + octaveMin;
+                
+                // Generate choices
+                this.generateChoices();
+            }
+
+            generateChoices() {
+                const choices = [this.currentNote];
+                
+                // Add 3 random different notes
+                while (choices.length < 4) {
+                    const randomNote = this.notes[Math.floor(Math.random() * this.notes.length)];
+                    if (!choices.includes(randomNote)) {
+                        choices.push(randomNote);
+                    }
+                }
+                
+                // Shuffle choices
+                for (let i = choices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [choices[i], choices[j]] = [choices[j], choices[i]];
+                }
+                
+                // Create choice buttons
+                const choicesContainer = document.getElementById('choices');
+                choicesContainer.innerHTML = '';
+                
+                choices.forEach(note => {
+                    const button = document.createElement('button');
+                    button.className = 'choice';
+                    button.textContent = note;
+                    button.addEventListener('click', () => this.selectAnswer(note, button));
+                    choicesContainer.appendChild(button);
+                });
+            }
+
+            selectAnswer(selectedNote, buttonElement) {
+                // Disable all choices
+                document.querySelectorAll('.choice').forEach(btn => {
+                    btn.classList.add('disabled');
+                });
+                
+                const isCorrect = selectedNote === this.currentNote;
+                this.totalQuestions++;
+                
+                if (isCorrect) {
+                    buttonElement.classList.add('correct');
+                    this.score++;
+                    this.streak++;
+                    this.correctAnswers++;
+                    document.getElementById('feedback').textContent = `✅ Correct! That was ${this.currentNote}${this.currentOctave}`;
+                    document.getElementById('feedback').className = 'feedback correct';
+                } else {
+                    buttonElement.classList.add('incorrect');
+                    this.streak = 0;
+                    document.getElementById('feedback').textContent = `❌ Incorrect. The answer was ${this.currentNote}${this.currentOctave}`;
+                    document.getElementById('feedback').className = 'feedback incorrect';
+                    
+                    // Highlight correct answer
+                    document.querySelectorAll('.choice').forEach(btn => {
+                        if (btn.textContent === this.currentNote) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+                
+                this.updateStats();
+                
+                // Show frequency info after answering
+                const frequency = this.noteFrequencies[this.currentNote] * Math.pow(2, this.currentOctave - 4);
+                this.updateFrequencyDisplay(frequency);
+                document.getElementById('frequency-info').style.display = 'block';
+                
+                document.getElementById('next-btn').style.display = 'inline-block';
+            }
+
+            updateStats() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('streak').textContent = this.streak;
+                
+                const accuracy = this.totalQuestions > 0 ? 
+                    Math.round((this.correctAnswers / this.totalQuestions) * 100) : 100;
+                document.getElementById('accuracy').textContent = `${accuracy}%`;
+            }
+
+            resetStats() {
+                this.score = 0;
+                this.streak = 0;
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+                this.updateStats();
+                
+                // Reset UI and generate new question
+                document.getElementById('feedback').textContent = '';
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('frequency-info').style.display = 'none';
+                document.getElementById('next-btn').style.display = 'none';
+                
+                this.generateQuestion();
+            }
+
+            async playCurrentNote() {
+                if (!this.audioContext || !this.currentNote) return;
+                
+                // Resume audio context if suspended
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+                
+                const frequency = this.noteFrequencies[this.currentNote] * Math.pow(2, this.currentOctave - 4);
+                
+                if (this.instrument === 'piano') {
+                    this.playPianoNote(frequency);
+                } else {
+                    this.playGuitarNote(frequency);
+                }
+            }
+
+            updateFrequencyDisplay(frequency) {
+                const freqText = document.getElementById('frequency-text');
+                const currentNoteRef = document.getElementById('current-note-ref');
+                const expectedFreq = document.getElementById('expected-freq');
+                
+                freqText.textContent = `Playing: ${this.currentNote}${this.currentOctave} at ${frequency.toFixed(2)} Hz`;
+                currentNoteRef.textContent = `${this.currentNote}${this.currentOctave}`;
+                expectedFreq.textContent = `${frequency.toFixed(2)} Hz`;
+            }
+
+            playPianoNote(frequency) {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                oscillator.type = 'triangle'; // More piano-like than sine
+                
+                // Envelope for piano-like attack and decay
+                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.1, this.audioContext.currentTime + 0.3);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.5);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 1.5);
+            }
+
+            playGuitarNote(frequency) {
+                // Create multiple oscillators for richer acoustic guitar sound
+                const fundamental = this.audioContext.createOscillator();
+                const harmonic2 = this.audioContext.createOscillator();
+                const harmonic3 = this.audioContext.createOscillator();
+                
+                const gainNode = this.audioContext.createGain();
+                const harmonic2Gain = this.audioContext.createGain();
+                const harmonic3Gain = this.audioContext.createGain();
+                const masterGain = this.audioContext.createGain();
+                
+                const filter = this.audioContext.createBiquadFilter();
+                const filter2 = this.audioContext.createBiquadFilter();
+                
+                // Connect the audio graph
+                fundamental.connect(gainNode);
+                harmonic2.connect(harmonic2Gain);
+                harmonic3.connect(harmonic3Gain);
+                
+                gainNode.connect(filter);
+                harmonic2Gain.connect(filter);
+                harmonic3Gain.connect(filter);
+                
+                filter.connect(filter2);
+                filter2.connect(masterGain);
+                masterGain.connect(this.audioContext.destination);
+                
+                // Set up frequencies (fundamental + harmonics for body)
+                fundamental.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                harmonic2.frequency.setValueAtTime(frequency * 2, this.audioContext.currentTime);
+                harmonic3.frequency.setValueAtTime(frequency * 3, this.audioContext.currentTime);
+                
+                // Use triangle for warmer, more acoustic tone
+                fundamental.type = 'triangle';
+                harmonic2.type = 'sine';
+                harmonic3.type = 'sine';
+                
+                // Set harmonic levels (quieter than fundamental)
+                harmonic2Gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                harmonic3Gain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+                
+                // Two-stage filtering for acoustic guitar warmth
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2500, this.audioContext.currentTime);
+                filter.Q.setValueAtTime(0.7, this.audioContext.currentTime);
+                
+                filter2.type = 'highpass';
+                filter2.frequency.setValueAtTime(80, this.audioContext.currentTime);
+                filter2.Q.setValueAtTime(0.5, this.audioContext.currentTime);
+                
+                // Acoustic guitar envelope - quick attack, gradual decay
+                const attackTime = 0.005;
+                const decayTime = 0.3;
+                const sustainLevel = 0.4;
+                const releaseTime = 1.2;
+                
+                masterGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+                masterGain.gain.linearRampToValueAtTime(0.25, this.audioContext.currentTime + attackTime);
+                masterGain.gain.exponentialRampToValueAtTime(sustainLevel * 0.25, this.audioContext.currentTime + attackTime + decayTime);
+                masterGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + attackTime + decayTime + releaseTime);
+                
+                // Start all oscillators
+                const startTime = this.audioContext.currentTime;
+                const stopTime = startTime + attackTime + decayTime + releaseTime;
+                
+                fundamental.start(startTime);
+                harmonic2.start(startTime);
+                harmonic3.start(startTime);
+                
+                fundamental.stop(stopTime);
+                harmonic2.stop(stopTime);
+                harmonic3.stop(stopTime);
+            }
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('load', () => {
+            new RootNoteTrainer();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                document.getElementById('play-btn').click();
+            } else if (e.key >= '1' && e.key <= '4') {
+                const choices = document.querySelectorAll('.choice:not(.disabled)');
+                const index = parseInt(e.key) - 1;
+                if (choices[index]) {
+                    choices[index].click();
+                }
+            } else if (e.key === 'Enter' || e.key === 'ArrowRight') {
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn.style.display !== 'none') {
+                    nextBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
